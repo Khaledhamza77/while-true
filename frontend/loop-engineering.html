@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Loop Engineering — while(true)</title>
+  <link rel="stylesheet" href="css/style.css" />
+  <style>
+    /* ---- Page Hero ---- */
+    .page-hero {
+      padding: 80px 0 56px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .page-hero-badge {
+      margin-bottom: 16px;
+    }
+
+    .page-hero-title {
+      font-family: var(--font-display);
+      font-size: clamp(2.2rem, 5vw, 3.6rem);
+      font-weight: 800;
+      color: var(--text);
+      margin-bottom: 12px;
+    }
+
+    .page-hero-subtitle {
+      font-family: var(--font-body);
+      font-size: 1.1rem;
+      color: var(--text-muted);
+    }
+
+    /* ---- Graph Section ---- */
+    .graph-section-heading {
+      margin-bottom: 24px;
+    }
+
+    /* ---- When to use grid ---- */
+    .use-case-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 24px;
+    }
+
+    .use-case-label {
+      font-family: var(--font-mono);
+      font-size: 0.75rem;
+      font-weight: 400;
+      margin-bottom: 10px;
+      display: block;
+    }
+
+    .use-case-good .use-case-label {
+      color: var(--green);
+    }
+
+    .use-case-bad .use-case-label {
+      color: var(--amber);
+    }
+
+    .use-case-text {
+      color: var(--text-muted);
+      font-size: 0.95rem;
+      line-height: 1.65;
+    }
+
+    /* ---- Steps ---- */
+    .steps-list {
+      display: flex;
+      flex-direction: column;
+      gap: 28px;
+    }
+
+    /* ---- CTA ---- */
+    .cta-section {
+      border-top: 1px solid var(--border);
+      padding-top: 48px;
+      display: flex;
+      flex-direction: row;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    @media (max-width: 768px) {
+      .use-case-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .cta-section {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ===== Navigation ===== -->
+  <nav class="nav">
+    <div class="nav-inner">
+      <a href="index.html" class="nav-logo">while(true)</a>
+      <ul class="nav-links">
+        <li><a href="index.html">Home</a></li>
+        <li><a href="loop-engineering.html" class="active">Loop Engineering</a></li>
+        <li><a href="autoresearch.html">Autoresearch</a></li>
+        <li><a href="demo.html">Demo</a></li>
+      </ul>
+    </div>
+  </nav>
+
+  <div class="page-wrapper">
+
+    <!-- ===== Hero ===== -->
+    <section class="page-hero">
+      <div class="container">
+        <div class="page-hero-badge">
+          <span class="badge badge-cyan">ReAct Pattern</span>
+        </div>
+        <h1 class="page-hero-title">Loop Engineering</h1>
+        <p class="page-hero-subtitle">The ReAct pattern — Reason, Act, Observe, Repeat</p>
+      </div>
+    </section>
+
+    <!-- ===== Graph ===== -->
+    <section class="section">
+      <div class="container">
+        <h2 class="graph-section-heading">The Graph</h2>
+        <div class="graph-container" style="height:280px">
+          <div id="react-graph" style="width:100%;height:100%;"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== How It Works ===== -->
+    <section class="section">
+      <div class="container">
+        <h2 style="margin-bottom:40px;">How It Works</h2>
+        <div class="steps-list">
+
+          <div class="step-card">
+            <div class="step-number">1</div>
+            <div class="step-content">
+              <div class="step-title">Reason</div>
+              <p class="step-body">The LLM receives the conversation history and decides: call a tool to gather more information, or answer directly.</p>
+            </div>
+          </div>
+
+          <div class="step-card">
+            <div class="step-number">2</div>
+            <div class="step-content">
+              <div class="step-title">Act</div>
+              <p class="step-body">If a tool call is decided, the search tool fires against the Tavily API, returning titles, URLs, and snippets.</p>
+            </div>
+          </div>
+
+          <div class="step-card">
+            <div class="step-number">3</div>
+            <div class="step-content">
+              <div class="step-title">Observe</div>
+              <p class="step-body">The tool result is appended to the message history and the iteration counter increments.</p>
+            </div>
+          </div>
+
+          <div class="step-card">
+            <div class="step-number">4</div>
+            <div class="step-content">
+              <div class="step-title">Loop</div>
+              <p class="step-body">Control returns to Reason. The agent now has richer context. It loops until it's confident enough to answer or the iteration cap (10) is hit.</p>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== When to Use ===== -->
+    <section class="section">
+      <div class="container">
+        <h2 style="margin-bottom:32px;">When to Use This</h2>
+        <div class="use-case-grid">
+
+          <div class="card use-case-good">
+            <span class="use-case-label">Good fit</span>
+            <p class="use-case-text">Real-time Q&amp;A, factual lookups, tasks where you don't know how many searches will be needed in advance.</p>
+          </div>
+
+          <div class="card use-case-bad">
+            <span class="use-case-label">Not ideal</span>
+            <p class="use-case-text">Deep multi-topic research where you need structured synthesis across many sources — use Autoresearch for that.</p>
+          </div>
+
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== CTA ===== -->
+    <section class="section">
+      <div class="container">
+        <div class="cta-section">
+          <a href="demo.html" class="btn btn-primary">Try it in the Demo &rarr;</a>
+          <a href="autoresearch.html" class="btn btn-ghost">See Autoresearch &rarr;</a>
+        </div>
+      </div>
+    </section>
+
+  </div>
+
+  <!-- ===== vis.js CDN ===== -->
+  <script src="https://unpkg.com/vis-network/standalone/umd/vis-network.min.js"></script>
+
+  <!-- ===== ReAct Graph Init ===== -->
+  <script>
+    (function () {
+      var NODE_DEFAULTS = {
+        shape: 'box',
+        color: { background: '#1a2d45', border: '#1c2d46' },
+        font: { color: '#dce8f5', face: 'JetBrains Mono', size: 13 },
+        borderWidth: 1,
+        margin: 8
+      };
+
+      var nodes = new vis.DataSet([
+        Object.assign({}, NODE_DEFAULTS, {
+          id: 'REASON',
+          label: 'REASON',
+          x: -200, y: 0,
+          color: { background: '#1a2d45', border: '#22d3ee' },
+          borderWidth: 2
+        }),
+        Object.assign({}, NODE_DEFAULTS, {
+          id: 'TOOL_CALL',
+          label: 'TOOL CALL',
+          x: 200, y: 0
+        }),
+        Object.assign({}, NODE_DEFAULTS, {
+          id: 'OBSERVE',
+          label: 'OBSERVE',
+          x: 0, y: 160
+        }),
+        Object.assign({}, NODE_DEFAULTS, {
+          id: 'END',
+          label: 'END',
+          x: 400, y: -100,
+          color: { background: '#0d1423', border: '#364d6d' },
+          font: { color: '#364d6d', face: 'JetBrains Mono', size: 13 }
+        })
+      ]);
+
+      var edges = new vis.DataSet([
+        { from: 'REASON', to: 'TOOL_CALL', label: 'has tool call' },
+        { from: 'REASON', to: 'END', label: 'task complete', dashes: true, color: { color: '#364d6d' } },
+        { from: 'TOOL_CALL', to: 'OBSERVE' },
+        {
+          from: 'OBSERVE', to: 'REASON',
+          label: 'loop back',
+          dashes: true,
+          color: { color: '#f59e0b' },
+          smooth: { type: 'curvedCCW', roundness: 0.4 }
+        }
+      ]);
+
+      var options = {
+        physics: false,
+        interaction: { dragNodes: false, zoomView: false, dragView: false },
+        nodes: {
+          font: { color: '#dce8f5', face: 'JetBrains Mono', size: 13 }
+        },
+        edges: {
+          arrows: { to: { enabled: true, scaleFactor: 0.7 } },
+          color: { color: '#1c2d46' },
+          font: { color: '#6a7f9a', face: 'JetBrains Mono', size: 11, align: 'middle' }
+        }
+      };
+
+      new vis.Network(
+        document.getElementById('react-graph'),
+        { nodes: nodes, edges: edges },
+        options
+      );
+    })();
+  </script>
+
+</body>
+</html>
