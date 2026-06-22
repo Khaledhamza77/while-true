@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>while(true) — Live Demo</title>
+  <link rel="stylesheet" href="css/style.css" />
+  <style>
+    /* ---- Demo Layout ---- */
+    .demo-wrapper {
+      height: 100vh;
+      padding-top: 60px; /* nav height */
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    .demo-header {
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+      justify-content: space-between;
+      padding: 16px 24px;
+      border-bottom: 1px solid var(--border);
+      flex-shrink: 0;
+    }
+
+    .demo-header-title {
+      font-family: var(--font-display);
+      font-size: 1.2rem;
+      font-weight: 700;
+      color: var(--text);
+    }
+
+    .demo-panels {
+      display: flex;
+      flex: 1;
+      overflow: hidden;
+    }
+
+    .demo-left {
+      width: 45%;
+      display: flex;
+      flex-direction: column;
+      border-right: 1px solid var(--border);
+      overflow: hidden;
+    }
+
+    .demo-right {
+      width: 55%;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    /* Graph fills the left panel */
+    .demo-left #graph-container {
+      flex: 1;
+      height: 100%;
+      border-radius: 0;
+      border: none;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .graph-status {
+      padding: 8px 16px;
+      font-family: var(--font-mono);
+      font-size: 0.78rem;
+      color: var(--text-muted);
+      flex-shrink: 0;
+      border-top: none;
+    }
+
+    /* Output panel */
+    #output-panel {
+      flex: 1;
+      overflow-y: auto;
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    #token-stream {
+      flex: 1;
+    }
+
+    #tool-logs {
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      overflow: hidden;
+    }
+
+    #tool-logs:empty {
+      display: none;
+    }
+
+    #final-answer {
+      display: none;
+      padding: 16px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+    }
+
+    /* Input bar */
+    .demo-input-bar {
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+      gap: 10px;
+      padding: 12px 16px;
+      border-top: 1px solid var(--border);
+      flex-shrink: 0;
+      background: var(--bg);
+    }
+
+    #query-input {
+      flex: 1;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 10px 14px;
+      color: var(--text);
+      font-family: var(--font-body);
+      font-size: 0.9rem;
+      outline: none;
+      transition: border-color var(--transition);
+    }
+
+    #query-input:focus {
+      border-color: var(--cyan);
+    }
+
+    #query-input::placeholder {
+      color: var(--text-muted);
+    }
+
+    #query-input:disabled,
+    #run-btn:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    /* Error card */
+    .error-card {
+      background: rgba(244, 63, 94, 0.1);
+      border: 1px solid rgba(244, 63, 94, 0.3);
+      border-radius: var(--radius);
+      padding: 12px 16px;
+      color: var(--red);
+      font-family: var(--font-mono);
+      font-size: 0.875rem;
+      margin-top: 8px;
+    }
+
+    /* Scoped graph container height override */
+    .demo-left #graph-container {
+      height: 100%;
+    }
+
+    @media (max-width: 768px) {
+      .demo-panels {
+        flex-direction: column;
+      }
+
+      .demo-left {
+        width: 100%;
+        height: 280px;
+        flex-shrink: 0;
+        border-right: none;
+        border-bottom: 1px solid var(--border);
+      }
+
+      .demo-right {
+        width: 100%;
+        flex: 1;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ===== Navigation ===== -->
+  <nav class="nav">
+    <div class="nav-inner">
+      <a href="index.html" class="nav-logo">while(true)</a>
+      <ul class="nav-links">
+        <li><a href="index.html">Home</a></li>
+        <li><a href="loop-engineering.html">Loop Engineering</a></li>
+        <li><a href="autoresearch.html">Autoresearch</a></li>
+        <li><a href="demo.html" class="active">Demo</a></li>
+      </ul>
+    </div>
+  </nav>
+
+  <!-- ===== Demo App ===== -->
+  <div class="demo-wrapper">
+
+    <!-- Header -->
+    <div class="demo-header">
+      <span class="demo-header-title">Live Demo</span>
+      <div class="mode-toggle">
+        <div class="mode-option active" data-mode="react">Loop Engineering</div>
+        <div class="mode-option" data-mode="autoresearch">Autoresearch</div>
+      </div>
+    </div>
+
+    <!-- Two-panel split -->
+    <div class="demo-panels">
+
+      <!-- Left: Graph -->
+      <div class="demo-left">
+        <div id="graph-container" class="graph-container"></div>
+        <div class="graph-status">Ready</div>
+      </div>
+
+      <!-- Right: Output -->
+      <div class="demo-right">
+        <div id="output-panel">
+          <pre id="token-stream" class="token-stream"></pre>
+          <div id="tool-logs"></div>
+          <div id="final-answer" class="final-answer"></div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Input bar -->
+    <div class="demo-input-bar">
+      <input
+        type="text"
+        id="query-input"
+        placeholder="Who is the current world chess champion?"
+        autocomplete="off"
+        spellcheck="false"
+      />
+      <button id="run-btn" class="btn btn-primary">Run →</button>
+    </div>
+
+  </div>
+
+  <!-- Scripts — order matters -->
+  <script src="https://unpkg.com/vis-network/standalone/umd/vis-network.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+  <script src="js/graph-viz.js"></script>
+  <script src="js/demo.js"></script>
+
+</body>
+</html>
