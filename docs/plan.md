@@ -13,7 +13,7 @@ A single-shot local demo app contrasting two AI agent paradigms — **Loop Engin
 | LLM client | `openai` Python SDK | Single SDK; swap OpenAI ↔ Ollama via `OLLAMA_BASE_URL` env var |
 | Web search | Tavily (free tier) | Required for autoresearch; 1k free searches/month covers demo use |
 | Backend | Python FastAPI + SSE | Lightweight, streaming-native, no WebSocket overhead |
-| Graphs | Pure Python state machines | Full control, no framework overhead, logic is explicit and readable |
+| Graphs | LangGraph | First-class graph orchestration, built-in state management, cycle support, and streaming |
 | Frontend | Vanilla HTML/CSS/JS | No build step, no framework, easy to audit and modify |
 | Graph viz | `vis.js` Network | Handles directed graphs natively, easy to animate node/edge states |
 
@@ -26,8 +26,8 @@ loop_autoresearch_demo/
 ├── backend/
 │   ├── main.py                  # FastAPI app + SSE endpoint
 │   ├── graphs/
-│   │   ├── loop_graph.py        # ReAct agentic loop
-│   │   └── research_graph.py    # Autoresearch pipeline loop
+│   │   ├── loop_graph.py        # ReAct agentic loop (LangGraph StateGraph)
+│   │   └── research_graph.py    # Autoresearch pipeline (LangGraph StateGraph)
 │   ├── tools/
 │   │   └── search.py            # Tavily search wrapper
 │   ├── config.py                # Env var loading + model client factory
@@ -54,7 +54,7 @@ loop_autoresearch_demo/
 
 ### Graph 1 — Agentic Loop (ReAct Pattern)
 
-Models the core loop engineering pattern: the agent reasons, acts, observes the result, and loops until the task is complete.
+Models the core loop engineering pattern: the agent reasons, acts, observes the result, and loops until the task is complete. Implemented as a LangGraph `StateGraph` with typed `TypedDict` state.
 
 ```
 START → REASON → TOOL_CALL → OBSERVE → REASON (loop)
@@ -62,20 +62,24 @@ START → REASON → TOOL_CALL → OBSERVE → REASON (loop)
                             DONE (agent decides task is complete)
 ```
 
-**Nodes:**
-- `START` — entry point, initializes state with user query
-- `REASON` — LLM call: given history + tool results, decide next action or finish
-- `TOOL_CALL` — execute the chosen tool (web search)
-- `OBSERVE` — append tool result to context, increment iteration counter
-- `DONE` — emit final answer, terminate
+**Nodes (LangGraph node functions):**
+- `START` — built-in LangGraph entry point; initializes `AgentState` with user query
+- `REASON` — LLM call via `ChatOpenAI` bound with tools; decides next action or finish
+- `TOOL_CALL` — executes the chosen tool (web search) via `ToolNode`
+- `OBSERVE` — appends tool result to `messages`, increments iteration counter
+- `DONE` — emits final answer, terminates
 
-**Loop condition:** Agent outputs a final answer instead of a tool call, or max iterations reached.
+**Edges:**
+- Conditional edge from `REASON`: routes to `TOOL_CALL` or `DONE` based on whether the LLM returned a tool call
+- Back-edge from `OBSERVE` → `REASON` forms the loop
+
+**Loop condition:** Conditional edge checks for `AIMessage` with no tool calls, or max iterations reached.
 
 ---
 
 ### Graph 2 — Autoresearch Loop
 
-Models a structured research pipeline where the agent plans queries, searches, synthesizes findings, evaluates quality, and loops back to search if gaps remain.
+Models a structured research pipeline where the agent plans queries, searches, synthesizes findings, evaluates quality, and loops back to search if gaps remain. Implemented as a LangGraph `StateGraph` with typed `TypedDict` state.
 
 ```
 START → PLAN → SEARCH → SYNTHESIZE → EVALUATE → SEARCH (loop if gaps found)
@@ -83,15 +87,19 @@ START → PLAN → SEARCH → SYNTHESIZE → EVALUATE → SEARCH (loop if gaps f
                                               DONE (quality threshold met)
 ```
 
-**Nodes:**
-- `START` — entry point, receives research topic
-- `PLAN` — LLM call: break topic into specific search queries (3–5 queries)
-- `SEARCH` — execute queries via Tavily, collect results
-- `SYNTHESIZE` — LLM call: combine all search results into a structured draft
-- `EVALUATE` — LLM call: assess draft completeness; output either gaps (new queries) or done signal
-- `DONE` — emit final research report, terminate
+**Nodes (LangGraph node functions):**
+- `START` — built-in LangGraph entry point; initializes `ResearchState` with topic
+- `PLAN` — LLM call: break topic into specific search queries (3–5 queries); writes to `state["queries"]`
+- `SEARCH` — executes queries via Tavily in parallel; appends to `state["search_results"]`
+- `SYNTHESIZE` — LLM call: combines all search results into a structured draft; writes to `state["draft"]`
+- `EVALUATE` — LLM call with structured output: assesses draft completeness; returns gaps or done signal
+- `DONE` — emits final research report, terminates
 
-**Loop condition:** Evaluator identifies knowledge gaps → generates new queries → loops back to SEARCH. Exits when satisfied or max iterations reached.
+**Edges:**
+- Linear edges: `PLAN → SEARCH → SYNTHESIZE → EVALUATE`
+- Conditional edge from `EVALUATE`: routes back to `SEARCH` (with new queries) or to `DONE`
+
+**Loop condition:** Conditional edge checks evaluator output — gap queries present → `SEARCH`; satisfied or max cycles reached → `DONE`.
 
 ---
 
@@ -181,8 +189,8 @@ TAVILY_API_KEY=tvly-...
 
 1. **Scaffold** — directory structure, `.env.example`, `requirements.txt`
 2. **Config + tools** — `config.py` (OpenAI client factory), `tools/search.py` (Tavily)
-3. **Loop graph** — `graphs/loop_graph.py` with SSE event emission
-4. **Autoresearch graph** — `graphs/research_graph.py` with SSE event emission
+3. **Loop graph** — `graphs/loop_graph.py` as a LangGraph `StateGraph`; stream events via `.astream_events()` and translate to SSE payloads
+4. **Autoresearch graph** — `graphs/research_graph.py` as a LangGraph `StateGraph`; same streaming approach
 5. **FastAPI app** — `main.py` with `/api/run` and `/api/stream/{run_id}` endpoints
 6. **Frontend static pages** — homepage, loop engineering page, autoresearch page
 7. **Demo page** — graph viz animation, SSE client wiring, chat UI
@@ -194,4 +202,4 @@ TAVILY_API_KEY=tvly-...
 - Local use only — no deployment, no auth, no persistent storage
 - Single active run at a time per browser session (run_id scoped to session)
 - Max iterations capped (loop: 10, autoresearch: 3 research cycles) to prevent runaway costs
-- No LangGraph, no agent frameworks — pure Python state machines for clarity and control
+- LangGraph used for graph orchestration; no higher-level agent frameworks (no LangChain agents, no AutoGen, etc.)
