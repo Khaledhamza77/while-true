@@ -131,7 +131,7 @@ function dispatch(evt) {
 
     case 'loop_back':
       GraphViz.loopBack(evt.from, evt.to, evt.iteration);
-      setGraphStatus(document.querySelector('.graph-status').textContent + ' (\xD7' + evt.iteration + ')');
+      setGraphStatus('↩ loop back ×' + evt.iteration);
       break;
 
     case 'token': {
@@ -208,7 +208,6 @@ async function runQuery(query) {
     runId = data.run_id;
   } catch (err) {
     handleError('Failed to connect to backend');
-    reEnableInputs();
     return;
   }
 
@@ -245,6 +244,11 @@ async function runQuery(query) {
 // ---------------------------------------------------------------------------
 
 function handleModeToggle(newMode) {
+  if (currentSource) {
+    currentSource.close();
+    currentSource = null;
+    reEnableInputs();
+  }
   if (newMode === currentMode) return;
   currentMode = newMode;
 
