@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>while(true) — AI Agent Demo</title>
+  <link rel="stylesheet" href="css/style.css" />
+  <style>
+    /* ---- Hero ---- */
+    .hero {
+      position: relative;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      overflow: hidden;
+      background: var(--bg);
+    }
+
+    .hero-content {
+      position: relative;
+      z-index: 1;
+      max-width: 760px;
+    }
+
+    .hero-title {
+      font-size: clamp(2.6rem, 6vw, 4.5rem);
+      font-family: var(--font-display);
+      font-weight: 800;
+      line-height: 1.1;
+      color: var(--text);
+      margin-bottom: 20px;
+    }
+
+    .hero-cursor {
+      display: inline-block;
+      width: 3px;
+      height: 0.9em;
+      background: var(--cyan);
+      margin-left: 4px;
+      vertical-align: middle;
+      animation: blink-cursor 1s step-end infinite;
+    }
+
+    .hero-subtitle {
+      font-family: var(--font-body);
+      font-size: 1.1rem;
+      color: var(--text-muted);
+      margin-bottom: 20px;
+      animation-delay: 0.1s;
+    }
+
+    .hero-description {
+      font-family: var(--font-body);
+      font-size: 1rem;
+      color: var(--text-muted);
+      line-height: 1.7;
+      max-width: 600px;
+      margin-bottom: 36px;
+      animation-delay: 0.2s;
+    }
+
+    .hero-ctas {
+      display: flex;
+      flex-direction: row;
+      gap: 12px;
+      flex-wrap: wrap;
+      animation-delay: 0.3s;
+    }
+
+    /* ---- Paradigms section ---- */
+    .paradigms-heading {
+      text-align: center;
+      margin-bottom: 48px;
+    }
+
+    .paradigms-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 28px;
+    }
+
+    .paradigm-card {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .paradigm-card-header {
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .paradigm-card-desc {
+      color: var(--text-muted);
+      font-size: 0.95rem;
+      line-height: 1.65;
+    }
+
+    .mini-graph {
+      height: 150px;
+      border-radius: var(--radius);
+      background: var(--surface-2);
+      border: 1px solid var(--border);
+      overflow: hidden;
+    }
+
+    .paradigm-card-link {
+      font-family: var(--font-body);
+      font-size: 0.9rem;
+      color: var(--cyan);
+      font-weight: 600;
+    }
+
+    /* ---- Footer ---- */
+    .footer {
+      background: var(--surface);
+      border-top: 1px solid var(--border);
+      padding: 40px 0;
+      text-align: center;
+    }
+
+    .footer-brand {
+      font-family: var(--font-display);
+      font-weight: 700;
+      color: var(--text-muted);
+      font-size: 0.95rem;
+      margin-bottom: 16px;
+    }
+
+    .footer-links {
+      display: flex;
+      flex-direction: row;
+      justify-content: center;
+      gap: 24px;
+      list-style: none;
+      margin: 0;
+      padding: 0;
+    }
+
+    .footer-links a {
+      color: var(--text-muted);
+      font-size: 0.875rem;
+      transition: color var(--transition);
+    }
+
+    .footer-links a:hover {
+      color: var(--text);
+      text-decoration: none;
+    }
+
+    @media (max-width: 768px) {
+      .paradigms-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .hero-ctas {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+
+      .footer-links {
+        flex-wrap: wrap;
+        gap: 16px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ===== Navigation ===== -->
+  <nav class="nav">
+    <div class="nav-inner">
+      <a href="index.html" class="nav-logo">while(true)</a>
+      <ul class="nav-links">
+        <li><a href="index.html" class="active">Home</a></li>
+        <li><a href="loop-engineering.html">Loop Engineering</a></li>
+        <li><a href="autoresearch.html">Autoresearch</a></li>
+        <li><a href="demo.html">Demo</a></li>
+      </ul>
+    </div>
+  </nav>
+
+  <!-- ===== Hero ===== -->
+  <section class="hero">
+    <div class="bg-grid"></div>
+    <div class="container">
+      <div class="hero-content">
+        <h1 class="hero-title animate-fade-in-up">
+          while(true)<span class="hero-cursor"></span>
+        </h1>
+        <p class="hero-subtitle animate-fade-in-up">Two paradigms of AI agent reasoning</p>
+        <p class="hero-description animate-fade-in-up">
+          Explore how modern AI agents reason through problems — either by looping through a tight
+          Reason &rarr; Act &rarr; Observe cycle, or by running a structured
+          Plan &rarr; Search &rarr; Synthesize &rarr; Evaluate pipeline.
+          Watch the graph run live.
+        </p>
+        <div class="hero-ctas animate-fade-in-up">
+          <a href="demo.html" class="btn btn-primary">Try the Demo &rarr;</a>
+          <a href="#paradigms" class="btn btn-ghost">Learn the Concepts</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== Paradigm Comparison ===== -->
+  <section id="paradigms" class="section">
+    <div class="container">
+      <div class="paradigms-heading">
+        <h2>Two Ways Agents Think</h2>
+      </div>
+
+      <div class="paradigms-grid">
+
+        <!-- Loop Engineering card -->
+        <div class="card paradigm-card">
+          <div class="paradigm-card-header">
+            <span class="card-title">Loop Engineering</span>
+            <span class="badge badge-cyan">ReAct Pattern</span>
+          </div>
+          <p class="paradigm-card-desc">
+            Loop Engineering builds agents around a tight Reason → Act → Observe cycle where the
+            model reasons about what to do, calls a tool, then observes the result — repeating until
+            the task is complete. This compact feedback loop makes every decision traceable and keeps
+            the agent grounded in real tool outputs rather than pure reasoning.
+          </p>
+          <div id="graph-react" class="mini-graph"></div>
+          <a href="loop-engineering.html" class="paradigm-card-link">Deep Dive &rarr;</a>
+        </div>
+
+        <!-- Autoresearch card -->
+        <div class="card paradigm-card">
+          <div class="paradigm-card-header">
+            <span class="card-title">Autoresearch</span>
+            <span class="badge badge-amber">Research Pipeline</span>
+          </div>
+          <p class="paradigm-card-desc">
+            Autoresearch structures the agent as a Plan → Search → Synthesize → Evaluate pipeline
+            suited for open-ended knowledge tasks. The agent first builds a research plan, gathers
+            sources, synthesizes findings, then self-evaluates quality — looping back to search when
+            gaps remain and stopping only when the answer meets the set criteria.
+          </p>
+          <div id="graph-autoresearch" class="mini-graph"></div>
+          <a href="autoresearch.html" class="paradigm-card-link">Deep Dive &rarr;</a>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== Footer ===== -->
+  <footer class="footer">
+    <div class="container">
+      <p class="footer-brand">while(true) — AI agent demo</p>
+      <ul class="footer-links">
+        <li><a href="index.html">Home</a></li>
+        <li><a href="loop-engineering.html">Loop Engineering</a></li>
+        <li><a href="autoresearch.html">Autoresearch</a></li>
+        <li><a href="demo.html">Demo</a></li>
+      </ul>
+    </div>
+  </footer>
+
+  <!-- ===== vis.js CDN ===== -->
+  <script src="https://unpkg.com/vis-network/standalone/umd/vis-network.min.js"></script>
+
+  <!-- ===== Mini Graph Init ===== -->
+  <script>
+    (function () {
+      var NODE_STYLE = {
+        shape: 'box',
+        color: { background: '#1a2d45', border: '#1c2d46' },
+        font: { color: '#dce8f5', face: 'JetBrains Mono', size: 11 },
+        borderWidth: 1,
+        margin: 6
+      };
+
+      var GRAPH_OPTIONS = {
+        physics: false,
+        interaction: { dragNodes: false, zoomView: false, dragView: false },
+        layout: { randomSeed: 42 },
+        edges: {
+          arrows: { to: { enabled: true, scaleFactor: 0.6 } },
+          color: { color: '#1c2d46', highlight: '#22d3ee' },
+          smooth: { type: 'dynamic' }
+        }
+      };
+
+      // ---- ReAct mini graph ----
+      var reactNodes = new vis.DataSet([
+        Object.assign({ id: 'REASON',    label: 'REASON' },    NODE_STYLE),
+        Object.assign({ id: 'TOOL_CALL', label: 'TOOL CALL' }, NODE_STYLE),
+        Object.assign({ id: 'OBSERVE',   label: 'OBSERVE' },   NODE_STYLE)
+      ]);
+
+      var reactEdges = new vis.DataSet([
+        { from: 'REASON',    to: 'TOOL_CALL' },
+        { from: 'TOOL_CALL', to: 'OBSERVE' },
+        {
+          from: 'OBSERVE', to: 'REASON',
+          dashes: true,
+          color: { color: '#f59e0b' },
+          smooth: { type: 'curvedCCW', roundness: 0.4 }
+        }
+      ]);
+
+      new vis.Network(
+        document.getElementById('graph-react'),
+        { nodes: reactNodes, edges: reactEdges },
+        GRAPH_OPTIONS
+      );
+
+      // ---- Autoresearch mini graph ----
+      var arNodes = new vis.DataSet([
+        Object.assign({ id: 'PLAN',       label: 'PLAN' },       NODE_STYLE),
+        Object.assign({ id: 'SEARCH',     label: 'SEARCH' },     NODE_STYLE),
+        Object.assign({ id: 'SYNTHESIZE', label: 'SYNTHESIZE' }, NODE_STYLE),
+        Object.assign({ id: 'EVALUATE',   label: 'EVALUATE' },   NODE_STYLE)
+      ]);
+
+      var arEdges = new vis.DataSet([
+        { from: 'PLAN',       to: 'SEARCH' },
+        { from: 'SEARCH',     to: 'SYNTHESIZE' },
+        { from: 'SYNTHESIZE', to: 'EVALUATE' },
+        {
+          from: 'EVALUATE', to: 'SEARCH',
+          dashes: true,
+          color: { color: '#f59e0b' },
+          smooth: { type: 'curvedCCW', roundness: 0.5 }
+        }
+      ]);
+
+      new vis.Network(
+        document.getElementById('graph-autoresearch'),
+        { nodes: arNodes, edges: arEdges },
+        GRAPH_OPTIONS
+      );
+    })();
+  </script>
+
+</body>
+</html>
