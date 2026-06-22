@@ -51,7 +51,9 @@ function openToolLog(tool, args) {
   header.className = 'tool-log-header';
 
   const query = (args && args.query) ? args.query : '';
-  header.innerHTML = '&#x1F50D; ' + escapeHtml(tool) + ': <code>' + escapeHtml(query) + '</code>';
+  header.innerHTML =
+    '&#x1F50D; <span class="tool-log-query">' + escapeHtml(tool) + ': ' + escapeHtml(query) + '</span>' +
+    '<span class="tool-log-chevron">&#x25BE;</span>';
 
   const body = document.createElement('div');
   body.className = 'tool-log-body';
@@ -228,6 +230,7 @@ async function runQuery(query) {
   currentSource.onerror = function () {
     if (currentSource && currentSource.readyState === EventSource.CLOSED) {
       // Stream closed cleanly — just re-enable inputs
+      GraphViz.reset();
       reEnableInputs();
     } else {
       handleError('Connection lost');
@@ -267,8 +270,6 @@ function handleModeToggle(newMode) {
     autoresearch: 'What are the tradeoffs between RAG and fine-tuning?'
   };
   document.getElementById('query-input').placeholder = placeholders[currentMode] || '';
-
-  GraphViz.reset();
 }
 
 // ---------------------------------------------------------------------------
