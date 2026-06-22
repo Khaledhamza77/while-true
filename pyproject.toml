@@ -1,0 +1,14 @@
+[project]
+name = "while-true"
+version = "0.1.0"
+requires-python = ">=3.12"
+dependencies = [
+    "fastapi>=0.115",
+    "uvicorn>=0.30",
+    "openai>=1.50",
+    "langgraph>=0.2",
+    "langchain-openai>=0.2",
+    "tavily-python>=0.5",
+    "python-dotenv>=1.0",
+    "sse-starlette>=2.1",
+]
