@@ -149,6 +149,9 @@
   /** Exit timers keyed by node id so we can clear pending resets */
   var _exitTimers   = {};
 
+  /** Flash timers from loopBack() so we can cancel them on reset/destroy */
+  var _flashTimers  = {};
+
   // ------------------------------------------------------------------
   // Helpers
   // ------------------------------------------------------------------
@@ -182,6 +185,8 @@
     snap.width = (edge.width !== undefined) ? edge.width : undefined;
     // dashes
     snap.dashes = (edge.dashes !== undefined) ? edge.dashes : undefined;
+    // smooth
+    if (edge.smooth !== undefined) snap.smooth = JSON.parse(JSON.stringify(edge.smooth));
     return snap;
   }
 
@@ -193,6 +198,7 @@
     if (orig.color !== undefined)  update.color  = orig.color;
     if (orig.width !== undefined)  update.width  = orig.width;
     if (orig.dashes !== undefined) update.dashes = orig.dashes;
+    if (orig.smooth !== undefined) update.smooth = orig.smooth;
     _edgesDS.update(update);
   }
 
@@ -236,7 +242,8 @@
         _origEdges[e.id] = cloneEdgeFields(e);
       });
 
-      _exitTimers = {};
+      _exitTimers  = {};
+      _flashTimers = {};
       _mode = mode;
 
       _network = new vis.Network(
@@ -320,10 +327,12 @@
         // Flash the edge
         _edgesDS.update({ id: edgeId, color: { color: '#f59e0b' }, width: 3 });
 
-        setTimeout(function () {
+        var flashTimerId = setTimeout(function () {
+          delete _flashTimers[flashTimerId];
           if (!_edgesDS) return;
           restoreEdge(edgeId);
         }, 600);
+        _flashTimers[flashTimerId] = flashTimerId;
       }
 
       // Badge the destination node label with ×iteration
@@ -342,6 +351,12 @@
         clearTimeout(_exitTimers[nodeId]);
       });
       _exitTimers = {};
+
+      // Clear all pending flash timers
+      Object.keys(_flashTimers).forEach(function (id) {
+        clearTimeout(_flashTimers[id]);
+      });
+      _flashTimers = {};
 
       // Reset nodes
       _nodesDS.forEach(function (n) {
@@ -370,6 +385,11 @@
         clearTimeout(_exitTimers[nodeId]);
       });
       _exitTimers = {};
+
+      Object.keys(_flashTimers || {}).forEach(function (id) {
+        clearTimeout(_flashTimers[id]);
+      });
+      _flashTimers = {};
 
       if (_network) {
         _network.destroy();
