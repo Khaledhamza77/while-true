@@ -43,14 +43,14 @@ This pattern mirrors how a research analyst would work: break the question down,
 
 ## Tech Stack
 
-| Layer | Technology |
-|---|---|
-| Backend | Python, FastAPI, Server-Sent Events (SSE) |
-| LLM | OpenAI SDK (supports OpenAI API and Ollama interchangeably) |
-| Web Search | Tavily API |
-| Agent Graphs | Pure Python state machines (no agent frameworks) |
-| Frontend | Vanilla HTML, CSS, JavaScript |
-| Graph Visualization | vis.js Network |
+| Layer               | Technology                                                  |
+| ------------------- | ----------------------------------------------------------- |
+| Backend             | Python, FastAPI, Server-Sent Events (SSE)                   |
+| LLM                 | OpenAI SDK (supports OpenAI API and Ollama interchangeably) |
+| Web Search          | Tavily API                                                  |
+| Agent Graphs        | Pure Python state machines (no agent frameworks)            |
+| Frontend            | Vanilla HTML, CSS, JavaScript                               |
+| Graph Visualization | vis.js Network                                              |
 
 The two agent graphs are implemented as explicit Python state machines — no LangGraph or other orchestration framework. This keeps the logic readable and the demo focused.
 
